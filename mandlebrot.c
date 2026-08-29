@@ -1,6 +1,17 @@
 # include <stdio.h>
 # include <stdlib.h>
 
+int isMandelbrot(int z, int c){
+    int i;
+    for (i = 0; i < 100; i++) { //100 = num interacoes para ver se a conta realizada se repete muito
+        if (z * z + c > 4) {
+            return i;
+        }
+        z = z * z + c;
+    }
+    return 100;
+}
+
 int main (int argc, char *argv[]) {
     char *width = argv[1];
     char *height = argv[2];
