@@ -107,3 +107,29 @@ void printMatrix(int *matrix, int width, int height, FILE *file)
         fprintf(file, "\n");
     }
 }
+
+
+// Implementação com pthreads
+void* calcLines(void *args){
+    ThreadArgsMandelbrot *threadArgs = (ThreadArgsMandelbrot *)args;
+    double beginRealCoord = threadArgs->beginRealCoord;
+    double beginImagCoord = threadArgs->beginImagCoord;
+    int width = threadArgs->width;
+    int height = threadArgs->height;
+    int maxInteractions = threadArgs->maxInteractions;
+    int *mandelbrotMatrix = threadArgs->mandelbrotMatrix;
+    double *mandelbrotNumbers = threadArgs->mandelbrotNumbers;
+    int startLine = threadArgs->startLine;
+    int endLine = threadArgs->endLine;
+
+    for(int i = startLine; i < endLine; i++){
+        for(int j = 0; j < width; j++){
+            double *c = findC(beginRealCoord, beginImagCoord, width, height, i, j);
+            int numInteractions = isMandelbrot(c, mandelbrotNumbers, width, height, maxInteractions);
+            free(c);
+            mandelbrotMatrix[i * width + j] = calcIntensity(numInteractions, maxInteractions);
+        }
+    }
+    return NULL;
+
+}

@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "mandelbrot.h"
 
+#include <pthread.h>
+
 int main(int argc, char *argv[])
 {
     int width = atoi(argv[1]);
@@ -20,6 +22,7 @@ int main(int argc, char *argv[])
 
     int *matrix = mandelbrotSet(beginRealCoord, beginImagCoord, width, height, maxInteractions); // calcula o conjunto de Mandelbrot
     
+    // ========== IMPLEMENTACAO SERIAL ==========
     FILE *file = fopen("mandelbrot_lgsc_serial.pgm", "w"); // abre o arquivo para escrita
     if (file == NULL)
     {
@@ -31,8 +34,53 @@ int main(int argc, char *argv[])
 
     printf("saida no arquivo .pgm\n");
     fclose(file); // fecha o arquivo
+    // ========== FIM IMPLEMENTACAO SERIAL ==========
+
+    // ========== IMPLEMENTACAO PTHREADS1 ==========
+    
+// matriz resultados dos conjunto
+    double *mandelbrotNumbers = (double *)malloc(2 * sizeof(double)); // aloca memória para armazenar os resultados
+    if (mandelbrotNumbers == NULL)
+    {
+        fprintf(stderr, "Erro ao alocar memória para o array mandelbrotNumbers.\n");
+        exit(1);
+    }
+
+    int *mandelbrotMatrix = (int *)malloc(height * width * sizeof(int)); // matriz para armazenar os resultados do conjunto de Mandelbrot
+    if (mandelbrotMatrix == NULL)
+    {
+        fprintf(stderr, "Erro ao alocar memória para o array mandelbrotMatrix.\n");
+        exit(1);
+    }
+
+    pthread_t threads[numThreads];
+    ThreadArgsMandelbrot threadArgs[numThreads];
+    int linesPerThread = height / numThreads;
+
+    
+
+
+
+
+
+
+
+
+
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+           
+        }
+    }
+    free(mandelbrotNumbers); // libera a memória alocada para mandelbrotNumbers
+
+    // ========== FIM IMPLEMENTACAO PTHREADS1 ==========
+
 
     free(matrix); // libera a memória alocada para a matriz
+
 
     return 0;
 }
