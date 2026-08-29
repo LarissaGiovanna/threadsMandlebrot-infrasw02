@@ -95,17 +95,18 @@ int *mandelbrotSet(double beginRealCoord, double beginImagCoord, int width, int 
     return mandelbrotMatrix; // retorna a matriz de resultados
 }
 
-void printMatrix(int *matrix, int width, int height)
+void printMatrix(int *matrix, int width, int height, FILE *file)
 {
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
-            printf("%d ", matrix[i * width + j]); // imprime o valor da matriz na posição (i, j)
+            fprintf(file, "%d ", matrix[i * width + j]); // imprime o valor da matriz na posição (i, j)
         }
-        printf("\n");
+        fprintf(file, "\n");
     }
 }
+
 
 int main(int argc, char *argv[])
 {
@@ -124,7 +125,20 @@ int main(int argc, char *argv[])
     double beginImagCoord = -1.5; // coordenada imaginária inicial
 
     int *matrix = mandelbrotSet(beginRealCoord, beginImagCoord, width, height, maxInteractions); // calcula o conjunto de Mandelbrot
-    printMatrix(matrix, width, height);
+    
+    FILE *file = fopen("mandelbrot_lgsc_serial.pgm", "w"); // abre o arquivo para escrita
+    if (file == NULL)
+    {
+        fprintf(stderr, "Erro ao abrir o arquivo para escrita.\n");
+        free(matrix); // libera a memória alocada para a matriz antes de sair
+        return 1;
+    }
+    printMatrix(matrix, width, height, file);
+
+    printf("saida no arquivo .pgm\n");
+    fclose(file); // fecha o arquivo
+
+    free(matrix); // libera a memória alocada para a matriz
 
     return 0;
 }

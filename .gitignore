@@ -54,6 +54,7 @@ dkms.conf
 # debug information files
 *.dwo
 
+*.pgm
 /testes
 /evidencias.log
 /mandlebrot
