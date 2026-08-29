@@ -1,8 +1,9 @@
 # include <stdio.h>
 # include <stdlib.h>
+# include <math.h>
 
 int *findC(int beginRealCoord, int beginImagCoord, int width, int height, int i, int j){
-    int *c = malloc(2 * sizeof(int)); //malloc array de inteiros com 2 espaços
+    int *c = (int*)malloc(2 * sizeof(int)); //malloc array de inteiros com 2 espaços
     if (c == NULL) {
         fprintf(stderr, "Erro ao alocar memória para o array c.\n");
         exit(1);
@@ -21,9 +22,9 @@ int *findC(int beginRealCoord, int beginImagCoord, int width, int height, int i,
     return c;
 }
 
-int isMandelbrot(int z, int *c, double *mandelbrotNumbers, int width, int height, int maxInteractions) {
+int isMandelbrot(int *c, double *mandelbrotNumbers, int width, int height, int maxInteractions) {
     int i;
-    double zReal = 0.0;
+    double zReal = 0.0; //sempre começa com z = 0 + 0i
     double zImag = 0.0;
 
     for (i = 0; i < maxInteractions; i++) {
@@ -45,11 +46,41 @@ int isMandelbrot(int z, int *c, double *mandelbrotNumbers, int width, int height
     return maxInteractions;
 }
 
+int calcIntensity(int numInteractions, int maxInteractions) { //verificar isso
+    if (numInteractions == maxInteractions) {
+        return 0; // ponto pertence ao conjunto de Mandelbrot
+    } else {
+        return (int)(255.0 * numInteractions / maxInteractions); // ponto não pertence ao conjunto de Mandelbrot
+    }
+}
 
+
+int *mandelbrotSet(int beginRealCoord, int beginImagCoord, int width, int height, int maxInteractions) {
+    //matriz resultados dos conjunto
+    double *mandelbrotNumbers = (double*)malloc(2 * sizeof(double)); // aloca memória para armazenar os resultados
+    if (mandelbrotNumbers == NULL) {
+        fprintf(stderr, "Erro ao alocar memória para o array mandelbrotNumbers.\n");
+        exit(1);
+    }
+
+    int mandelbrotMatrix[height][width]; // matriz para armazenar os resultados do conjunto de Mandelbrot
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            int *c = findC(beginRealCoord, beginImagCoord, width, height, i, j); // c = [a, bi]
+            int numInteractions = isMandelbrot(c, mandelbrotNumbers, width, height, maxInteractions); // calcula o número de interações para o ponto c
+            free(c); // libera a memória alocada para c
+
+            mandelbrotMatrix[i][j] = calcIntensity(numInteractions, maxInteractions); // calcula a intensidade do ponto e armazena na matriz
+        }
+    }
+    free(mandelbrotNumbers); // libera a memória alocada para mandelbrotNumbers
+    return mandelbrotMatrix; // retorna a matriz de resultados
+}
 
 int main (int argc, char *argv[]) {
-    int width = atof(argv[1]);
-    int height = atof(argv[2]);
+    int width = atoi(argv[1]);
+    int height = atoi(argv[2]);
     int maxInteractions = atoi(argv[3]);
     int numThreads = atoi(argv[4]);
     if (argc != 5) {
