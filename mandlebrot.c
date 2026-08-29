@@ -6,6 +6,10 @@ int main (int argc, char *argv[]) {
     char *height = argv[2];
     int maxInteractions = atoi(argv[3]);
     int numThreads = atoi(argv[4]);
+    if (argc != 5) {
+        printf("Uso de parametros corretos: %s <largura> <altura> <maxInteracoes> <numThreads>\n", argv[0]);
+        return 1;
+    }
     printf("Width: %s, Height: %s, Max Interactions: %d, Num Threads: %d\n", width, height, maxInteractions, numThreads);
     return 0;
 }
