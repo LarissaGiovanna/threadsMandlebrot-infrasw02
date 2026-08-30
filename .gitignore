@@ -58,3 +58,4 @@ dkms.conf
 /testes
 /evidencias.log
 /mandelbrot
+*.txt

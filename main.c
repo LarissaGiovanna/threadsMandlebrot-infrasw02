@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "mandelbrot.h"
-
 #include <pthread.h>
+#include <time.h>
 
 int main(int argc, char *argv[])
 {
@@ -20,9 +20,12 @@ int main(int argc, char *argv[])
     double beginRealCoord = -2;   // coordenada real inicial
     double beginImagCoord = -1.5; // coordenada imaginária inicial
 
+    // ========== IMPLEMENTACAO SERIAL ==========
+    double serialTime = 0.0;
+    clock_t startSerial = clock();
+
     int *matrix = mandelbrotSet(beginRealCoord, beginImagCoord, width, height, maxInteractions); // calcula o conjunto de Mandelbrot
     
-    // ========== IMPLEMENTACAO SERIAL ==========
     FILE *file = fopen("mandelbrot_lgsc_serial.pgm", "w"); // abre o arquivo para escrita
     if (file == NULL)
     {
@@ -32,13 +35,17 @@ int main(int argc, char *argv[])
     }
     printMatrix(matrix, width, height, file);
 
-    printf("saida no arquivo .pgm\n");
     fclose(file); // fecha o arquivo
+
+    clock_t endSerial = clock();
+    serialTime = (double)(endSerial - startSerial) / CLOCKS_PER_SEC;
     // ========== FIM IMPLEMENTACAO SERIAL ==========
 
     // ========== IMPLEMENTACAO PTHREADS1 ==========
-    
-// matriz resultados dos conjunto
+    double pthreads1Time = 0.0;
+    clock_t startPthreads1 = clock();
+
+    // matriz resultados dos conjunto
     double *mandelbrotNumbers = (double *)malloc(2 * sizeof(double)); // aloca memória para armazenar os resultados
     if (mandelbrotNumbers == NULL)
     {
@@ -93,9 +100,23 @@ int main(int argc, char *argv[])
     
     free(mandelbrotNumbers); // libera a memória alocada para mandelbrotNumbers
 
+    clock_t endPthreads1 = clock();
+    pthreads1Time = (double)(endPthreads1 - startPthreads1) / CLOCKS_PER_SEC;
+
     // ========== FIM IMPLEMENTACAO PTHREADS1 ==========
 
+    // ========== IMPLEMENTACAO PTHREADS2 ==========
+    double pthreads2Time = 0.0;
+    clock_t startPthreads2 = clock();
+
+    clock_t endPthreads2 = clock();
+    pthreads2Time = (double)(endPthreads2 - startPthreads2) / CLOCKS_PER_SEC;
+    // ========== FIM IMPLEMENTACAO PTHREADS2 ==========
+
     // ========== IMPLEMENTACAO OPENMP ==========
+    double openmpTime = 0.0;
+    clock_t startOpenMP = clock();
+
     int *mandelbrotMatrixOpenMP = mandelbrotSetOpenMP(beginRealCoord, beginImagCoord, width, height, maxInteractions, numThreads); // calcula o conjunto de Mandelbrot usando OpenMP
     FILE *fileOpenMP = fopen("mandelbrot_lgsc_openmp.pgm", "w"); // abre o arquivo para escrita
     if (fileOpenMP == NULL)
@@ -108,11 +129,26 @@ int main(int argc, char *argv[])
     fclose(fileOpenMP); // fecha o arquivo
 
     free(mandelbrotMatrixOpenMP); // libera a memória alocada para a matriz
+    clock_t endOpenMP = clock();
+    openmpTime = (double)(endOpenMP - startOpenMP) / CLOCKS_PER_SEC;
     // ========== FIM IMPLEMENTACAO OPENMP ==========
 
 
     free(matrix); // libera a memória alocada para a matriz
 
+
+    // ========== PRINT TEMPOS DE EXECUCAO ==========
+    FILE *timeFile = fopen("times.txt", "w");
+    if (timeFile == NULL)
+    {
+        fprintf(stderr, "Erro ao abrir o arquivo para escrita.\n");
+        return 1;
+    }
+    fprintf(timeFile, "Serial: %fs\n", serialTime);
+    fprintf(timeFile, "OpenMP: %fs\n", openmpTime);
+    fprintf(timeFile, "Pthreads1: %fs\n", pthreads1Time);
+    fprintf(timeFile, "Pthreads2: %fs\n", pthreads2Time);
+    fclose(timeFile);
 
     return 0;
 }
