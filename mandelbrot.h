@@ -10,6 +10,7 @@ void printMatrix(int *matrix, int width, int height, FILE *file);
 
 //pthreads
 typedef struct threadArgsMandelbrot{
+        int threadId;
         double beginRealCoord;
         double beginImagCoord;
         int width;
@@ -23,3 +24,4 @@ typedef struct threadArgsMandelbrot{
     } ThreadArgsMandelbrot;
 
 void *mandelbrotSetPthreads(void *args);
+void* calcLines(void *args);

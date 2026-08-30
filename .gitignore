@@ -57,4 +57,4 @@ dkms.conf
 *.pgm
 /testes
 /evidencias.log
-/mandlebrot
+/mandelbrot

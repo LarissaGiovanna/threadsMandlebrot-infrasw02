@@ -57,23 +57,44 @@ int main(int argc, char *argv[])
     ThreadArgsMandelbrot threadArgs[numThreads];
     int linesPerThread = height / numThreads;
 
-    
-
-
-
-
-
-
-
-
-
-    for (int i = 0; i < height; i++)
-    {
-        for (int j = 0; j < width; j++)
-        {
-           
+    //dividir o trabalho entre as threads, no caso cada thread vai calcular uma parte da matriz de resultados do conjunto de Mandelbrot, de acordo com o número de linhas que cada thread deve calcular, ex: se a matriz tem 100 linhas e temos 4 threads, cada thread vai calcular 25 linhas da matriz.
+    for (int i = 0; i < numThreads; i++){
+        threadArgs[i].threadId = i;
+        threadArgs[i].beginRealCoord = beginRealCoord;
+        threadArgs[i].beginImagCoord = beginImagCoord;
+        threadArgs[i].width = width;
+        threadArgs[i].height = height;
+        threadArgs[i].maxInteractions = maxInteractions;
+        threadArgs[i].mandelbrotMatrix = mandelbrotMatrix;
+        threadArgs[i].mandelbrotNumbers = mandelbrotNumbers;
+        threadArgs[i].startLine = i * linesPerThread;
+        if (i == numThreads - 1) {
+            threadArgs[i].endLine = height; // última thread pega o resto das linhas
+        } else {
+            threadArgs[i].endLine = (i + 1) * linesPerThread;
         }
+
+        pthread_create(&threads[i], NULL, calcLines, &threadArgs[i]);
     }
+    //esperar todas as threads terminarem
+    for (int i = 0; i < numThreads; i++){
+        pthread_join(threads[i], NULL);
+    }
+
+    FILE *filePthreads = fopen("mandelbrot_lgsc_pthreads.pgm", "w"); // abre o arquivo para escrita
+    if (filePthreads == NULL)
+    {
+        fprintf(stderr, "Erro ao abrir o arquivo para escrita.\n");
+        free(mandelbrotMatrix); // libera a memória alocada para a matriz antes de sair
+        return 1;
+    }
+    printMatrix(mandelbrotMatrix, width, height, filePthreads);
+    fclose(filePthreads); // fecha o arquivo
+
+
+
+
+    
     free(mandelbrotNumbers); // libera a memória alocada para mandelbrotNumbers
 
     // ========== FIM IMPLEMENTACAO PTHREADS1 ==========

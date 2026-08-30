@@ -19,11 +19,9 @@ double *findC(double beginRealCoord, double beginImagCoord, int width, int heigh
 
     double cReal = beginRealCoord + j * stepReal; // coordenada real do ponto c, onde j e a coluna da matriz
     double cImag = beginImagCoord + i * stepImag; // coordenada imaginária, onde i e a linha da matriz
-    printf("%lf\n", beginImagCoord + i * stepImag);
 
     c[0] = cReal;
     c[1] = cImag;
-    printf("c[%d][%d] = %lf + %lfi\n", i, j, c[0], c[1]);
     return c;
 }
 
@@ -112,6 +110,7 @@ void printMatrix(int *matrix, int width, int height, FILE *file)
 // Implementação com pthreads
 void* calcLines(void *args){
     ThreadArgsMandelbrot *threadArgs = (ThreadArgsMandelbrot *)args;
+    int threadId = threadArgs->threadId;
     double beginRealCoord = threadArgs->beginRealCoord;
     double beginImagCoord = threadArgs->beginImagCoord;
     int width = threadArgs->width;
@@ -124,6 +123,7 @@ void* calcLines(void *args){
 
     for(int i = startLine; i < endLine; i++){
         for(int j = 0; j < width; j++){
+            printf("[%d] thread %d calculando linha %d, coluna %d\n", threadId, (int)pthread_self(), i, j);
             double *c = findC(beginRealCoord, beginImagCoord, width, height, i, j);
             int numInteractions = isMandelbrot(c, mandelbrotNumbers, width, height, maxInteractions);
             free(c);
