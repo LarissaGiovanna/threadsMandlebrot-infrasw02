@@ -3,6 +3,7 @@
 #include <math.h>
 #include "mandelbrot.h"
 
+
 double *findC(double beginRealCoord, double beginImagCoord, int width, int height, int i, int j)
 {
     double *c = (double *)malloc(2 * sizeof(double)); // malloc array de double com 2 espaços
@@ -83,9 +84,9 @@ int *mandelbrotSet(double beginRealCoord, double beginImagCoord, int width, int 
     {
         for (int j = 0; j < width; j++)
         {
-            double *c = findC(beginRealCoord, beginImagCoord, width, height, i, j);// c = [a, bi]
+            double *c = findC(beginRealCoord, beginImagCoord, width, height, i, j);                   // c = [a, bi]
             int numInteractions = isMandelbrot(c, mandelbrotNumbers, width, height, maxInteractions); // calcula o número de interações para o ponto c
-            free(c);// libera a memória alocada para c
+            free(c);                                                                                  // libera a memória alocada para c
 
             mandelbrotMatrix[i * width + j] = calcIntensity(numInteractions, maxInteractions); // calcula a intensidade do ponto e armazena na matriz
         }
@@ -106,9 +107,9 @@ void printMatrix(int *matrix, int width, int height, FILE *file)
     }
 }
 
-
 // Implementação com pthreads
-void* calcLines(void *args){
+void *calcLines(void *args)
+{
     ThreadArgsMandelbrot *threadArgs = (ThreadArgsMandelbrot *)args;
     int threadId = threadArgs->threadId;
     double beginRealCoord = threadArgs->beginRealCoord;
@@ -121,8 +122,10 @@ void* calcLines(void *args){
     int startLine = threadArgs->startLine;
     int endLine = threadArgs->endLine;
 
-    for(int i = startLine; i < endLine; i++){
-        for(int j = 0; j < width; j++){
+    for (int i = startLine; i < endLine; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
             printf("[%d] thread %d calculando linha %d, coluna %d\n", threadId, (int)pthread_self(), i, j);
             double *c = findC(beginRealCoord, beginImagCoord, width, height, i, j);
             int numInteractions = isMandelbrot(c, mandelbrotNumbers, width, height, maxInteractions);
@@ -131,5 +134,39 @@ void* calcLines(void *args){
         }
     }
     return NULL;
+}
 
+// implementação com OpenMP
+int *mandelbrotSetOpenMP(double beginRealCoord, double beginImagCoord, int width, int height, int maxInteractions, int num_threads)
+{
+    // matriz resultados dos conjunto
+    double *mandelbrotNumbers = (double *)malloc(2 * sizeof(double)); // aloca memória para armazenar os resultados
+    if (mandelbrotNumbers == NULL)
+    {
+        fprintf(stderr, "Erro ao alocar memória para o array mandelbrotNumbers.\n");
+        exit(1);
+    }
+
+    int *mandelbrotMatrix = (int *)malloc(height * width * sizeof(int)); // matriz para armazenar os resultados do conjunto de Mandelbrot
+    if (mandelbrotMatrix == NULL)
+    {
+        fprintf(stderr, "Erro ao alocar memória para o array mandelbrotMatrix.\n");
+        exit(1);
+    }
+
+    #pragma omp parallel for num_threads(num_threads) 
+        for (int i = 0; i < height; i++)
+        {
+            for (int j = 0; j < width; j++)
+            {
+                double *c = findC(beginRealCoord, beginImagCoord, width, height, i, j);                   // c = [a, bi]
+                int numInteractions = isMandelbrot(c, mandelbrotNumbers, width, height, maxInteractions); // calcula o número de interações para o ponto c
+                free(c);                                                                                  // libera a memória alocada para c
+
+                mandelbrotMatrix[i * width + j] = calcIntensity(numInteractions, maxInteractions); // calcula a intensidade do ponto e armazena na matriz
+            }
+        }
+    
+    free(mandelbrotNumbers); // libera a memória alocada para mandelbrotNumbers
+    return mandelbrotMatrix; // retorna a matriz de resultados
 }

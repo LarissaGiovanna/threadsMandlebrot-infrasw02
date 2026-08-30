@@ -25,3 +25,6 @@ typedef struct threadArgsMandelbrot{
 
 void *mandelbrotSetPthreads(void *args);
 void* calcLines(void *args);
+
+//openmp
+int *mandelbrotSetOpenMP(double beginRealCoord, double beginImagCoord, int width, int height, int maxInteractions, int num_threads);

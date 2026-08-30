@@ -18,3 +18,10 @@
 - ficar fazendo isso repetidas vezes ate que z_real² + z_imag² > 4 (se der maior que 4, o numero explodiu)
 - se ele explodiu, nao faz parte do conjunto
 - se nao aconteceu nada, ele faz parte do conjunto
+
+
+#### openmp
+#pragma omp parallel num_threads(num_threads recebido do args){
+    #pragma omp for private(i)
+        for ...
+}

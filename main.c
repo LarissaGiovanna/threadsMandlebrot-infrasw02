@@ -90,14 +90,25 @@ int main(int argc, char *argv[])
     }
     printMatrix(mandelbrotMatrix, width, height, filePthreads);
     fclose(filePthreads); // fecha o arquivo
-
-
-
-
     
     free(mandelbrotNumbers); // libera a memória alocada para mandelbrotNumbers
 
     // ========== FIM IMPLEMENTACAO PTHREADS1 ==========
+
+    // ========== IMPLEMENTACAO OPENMP ==========
+    int *mandelbrotMatrixOpenMP = mandelbrotSetOpenMP(beginRealCoord, beginImagCoord, width, height, maxInteractions, numThreads); // calcula o conjunto de Mandelbrot usando OpenMP
+    FILE *fileOpenMP = fopen("mandelbrot_lgsc_openmp.pgm", "w"); // abre o arquivo para escrita
+    if (fileOpenMP == NULL)
+    {
+        fprintf(stderr, "Erro ao abrir o arquivo para escrita.\n");
+        free(mandelbrotMatrixOpenMP); // libera a memória alocada para a matriz antes de sair
+        return 1;
+    }
+    printMatrix(mandelbrotMatrixOpenMP, width, height, fileOpenMP);
+    fclose(fileOpenMP); // fecha o arquivo
+
+    free(mandelbrotMatrixOpenMP); // libera a memória alocada para a matriz
+    // ========== FIM IMPLEMENTACAO OPENMP ==========
 
 
     free(matrix); // libera a memória alocada para a matriz
