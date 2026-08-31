@@ -6,13 +6,18 @@
 
 int main(int argc, char *argv[])
 {
+    if (argc != 5)
+    {
+        printf("Uso de parametros incorretos. Deve ser: %s <largura> <altura> <maxInteracoes> <numThreads>\n", argv[0]);
+        return 1;
+    }
     int width = atoi(argv[1]);
     int height = atoi(argv[2]);
     int maxInteractions = atoi(argv[3]);
     int numThreads = atoi(argv[4]);
-    if (argc != 5)
+    if (width <= 0 || height <= 0 || maxInteractions <= 0 || numThreads <= 0)
     {
-        printf("Uso de parametros corretos: %s <largura> <altura> <maxInteracoes> <numThreads>\n", argv[0]);
+        printf("Todos os parametros devem ser inteiros positivos.\n");
         return 1;
     }
 
