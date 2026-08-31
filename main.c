@@ -89,12 +89,22 @@ int main(int argc, char *argv[])
             threadArgs[i].endLine = (i + 1) * linesPerThread;
         }
 
-        pthread_create(&threads[i], NULL, calcLines, &threadArgs[i]);
+        int ret = pthread_create(&threads[i], NULL, calcLines, &threadArgs[i]);
+        if (ret != 0)
+        {
+            fprintf(stderr, "Erro ao criar a thread %d: %d\n", i, ret);
+            return 1;
+        }
     }
     // esperar todas as threads terminarem
     for (int i = 0; i < numThreads; i++)
     {
-        pthread_join(threads[i], NULL);
+        int ret = pthread_join(threads[i], NULL);
+        if (ret != 0)
+        {
+            fprintf(stderr, "Erro ao esperar a thread %d: %d\n", i, ret);
+            return 1;
+        }
     }
 
     FILE *filePthreads = fopen("mandelbrot_lgsc_pthreads1.pgm", "w"); // abre o arquivo para escrita
@@ -149,12 +159,22 @@ int main(int argc, char *argv[])
         thread2Args[i].mandelbrotNumbers = mandelbrotNumbers2;
         thread2Args[i].numThreads = numThreads;
 
-        pthread_create(&threads2[i], NULL, calcAlternate, &thread2Args[i]);
+        int ret = pthread_create(&threads2[i], NULL, calcAlternate, &thread2Args[i]);
+        if (ret != 0)
+        {
+            fprintf(stderr, "Erro ao criar a thread %d: %d\n", i, ret);
+            return 1;
+        }
     }
     // esperar todas as threads terminarem
     for (int i = 0; i < numThreads; i++)
     {
-        pthread_join(threads2[i], NULL);
+        int ret = pthread_join(threads2[i], NULL);
+        if (ret != 0)
+        {
+            fprintf(stderr, "Erro ao esperar a thread %d: %d\n", i, ret);
+            return 1;
+        }
     }
 
     FILE *filePthreads2 = fopen("mandelbrot_lgsc_pthreads2.pgm", "w"); // abre o arquivo para escrita
