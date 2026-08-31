@@ -21,9 +21,11 @@ typedef struct threadArgsMandelbrot{
 
         int startLine;
         int endLine;
+
+        int numThreads;
     } ThreadArgsMandelbrot;
 
-void *mandelbrotSetPthreads(void *args);
+void* calcAlternate(void *args);
 void* calcLines(void *args);
 
 //openmp

@@ -126,7 +126,32 @@ void *calcLines(void *args)
     {
         for (int j = 0; j < width; j++)
         {
-            printf("[%d] thread %d calculando linha %d, coluna %d\n", threadId, (int)pthread_self(), i, j);
+            double *c = findC(beginRealCoord, beginImagCoord, width, height, i, j);
+            int numInteractions = isMandelbrot(c, mandelbrotNumbers, width, height, maxInteractions);
+            free(c);
+            mandelbrotMatrix[i * width + j] = calcIntensity(numInteractions, maxInteractions);
+        }
+    }
+    return NULL;
+}
+
+void* calcAlternate(void *args)
+{
+    ThreadArgsMandelbrot *threadArgs = (ThreadArgsMandelbrot *)args;
+    int threadId = threadArgs->threadId;
+    double beginRealCoord = threadArgs->beginRealCoord;
+    double beginImagCoord = threadArgs->beginImagCoord;
+    int width = threadArgs->width;
+    int height = threadArgs->height;
+    int maxInteractions = threadArgs->maxInteractions;
+    int *mandelbrotMatrix = threadArgs->mandelbrotMatrix;
+    double *mandelbrotNumbers = threadArgs->mandelbrotNumbers;
+    int numThreads = threadArgs->numThreads;
+
+    for (int i = threadId; i < height; i += numThreads)
+    {
+        for (int j = 0; j < width; j++)
+        {
             double *c = findC(beginRealCoord, beginImagCoord, width, height, i, j);
             int numInteractions = isMandelbrot(c, mandelbrotNumbers, width, height, maxInteractions);
             free(c);
